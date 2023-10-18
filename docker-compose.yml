@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # phpの設定
+  app:
+    container_name: app_chat-pusher
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    volumes:
+      - ./src/:/var/www/html
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=db 
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_NAME}
+      - DB_USERNAME=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+
+  # nginxの設定
+  web:
+    container_name: nginx_chat-pusher
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    ports:
+      - ${WEB_PORT}:80
+    depends_on:
+      - app 
+    volumes:
+      - ./src/:/var/www/html
+  
+  # mysqlの設定
+  db:
+    container_name: mysql_chat-pusher
+    build:
+      context: .
+      dockerfile: ./docker/mysql/Dockerfile
+    ports:
+      - ${DB_PORT}:3306
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      TZ: 'Asia/Tokyo'
+    volumes:
+      - ./db:/var/lib/mysql
