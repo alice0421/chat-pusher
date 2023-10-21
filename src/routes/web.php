@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\MessageController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -36,7 +36,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/message/{sender}/{receiver}', [MessageController::class, 'get'])->name('chat.get');
-Route::post('/message/{sender}/{receiver}', [MessageController::class, 'store'])->name('chat.store');
+// chat用のルーティング
+Route::middleware('auth')->group(function () {
+    Route::get('/chat/{receiver}', [ChatController::class, 'get'])->name('chat.get');
+    Route::post('/chat/{receiver}', [ChatController::class, 'store'])->name('chat.store');
+});
 
 require __DIR__.'/auth.php';
