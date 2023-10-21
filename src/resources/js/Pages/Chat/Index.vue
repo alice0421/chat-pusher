@@ -9,7 +9,6 @@ import TextInput from '@/Components/TextInput.vue';
 
 const props = defineProps({
     messages: Array,
-    sender: Object,
     receiver: Object,
 });
 
@@ -31,7 +30,7 @@ function sendMessage()
     // 何も入力していなければ送信しない
     if (!(new_message.value.replace(/\s+/g,'').length > 0)) return;
 
-    axios.post(route('chat.store', {'sender': props.sender.id, 'receiver': props.receiver.id }), {
+    axios.post(route('chat.store', { 'receiver': props.receiver.id }), {
             'context': new_message.value,
         })
         .then((res) => {
@@ -46,20 +45,26 @@ function sendMessage()
 </script>
 
 <template>
-    <Head title="Chat" />
+    <Head title="Private Chat" />
 
-    <div class="py-12">
-        <ul>
-            <li v-for="message in messages" class="mb-2">
-                <p>【メッセージ: {{ format(new Date(message.created_at), 'yyyy-MM-dd HH:mm:ss') }}】</p>
-                <p>送信者: {{ message.sender.name }}</p>
-                <p>受信者: {{ message.receiver.name }}</p>
-                <p>内容: {{ message.context }}</p>
-            </li>
-        </ul>
-    </div>
-    <div>
-        <TextInput class="mr-4" v-model="new_message" />
-        <PrimaryButton type="submit" @click="sendMessage()">送信</PrimaryButton>
-    </div>
+    <AuthenticatedLayout>
+        <template #header>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Private Chat</h2>
+        </template>
+
+        <div class="py-12">
+            <ul>
+                <li v-for="message in messages" class="mb-2">
+                    <p>【メッセージ: {{ format(new Date(message.created_at), 'yyyy-MM-dd HH:mm:ss') }}】</p>
+                    <p>送信者: {{ message.sender.name }}</p>
+                    <p>受信者: {{ message.receiver.name }}</p>
+                    <p>内容: {{ message.context }}</p>
+                </li>
+            </ul>
+        </div>
+        <div>
+            <TextInput class="mr-4" v-model="new_message" />
+            <PrimaryButton type="submit" @click="sendMessage()">送信</PrimaryButton>
+        </div>
+    </AuthenticatedLayout>
 </template>

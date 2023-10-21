@@ -11,21 +11,20 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class MessageController extends Controller
+class ChatController extends Controller
 {
-    public function get (User $sender, User $receiver): Response
+    public function get (User $receiver): Response
     {
         return Inertia::render('Chat/Index', [
             'messages' => Message::with('sender', 'receiver')->orderBy('created_at', 'asc')->get(),
-            'sender' => $sender,
             'receiver' => $receiver,
         ]);
     }
 
-    public function store (Request $request, User $sender, User $receiver): Message
+    public function store (Request $request, User $receiver): Message
     {
         $input = $request->only(['context']);
-        $input['sender_id'] = $sender->id;
+        $input['sender_id'] = Auth::id();
         $input['receiver_id'] = $receiver->id;
         $message = Message::create($input);
 
