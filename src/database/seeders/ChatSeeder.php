@@ -6,7 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class MessageSeeder extends Seeder
+class ChatSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,17 +15,17 @@ class MessageSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('messages')->insert([
+        DB::table('chats')->insert([
             'sender_id' => 2,
             'receiver_id' => 1,
-            'context' => "花子から太郎へのメッセージ",
+            'message' => "花子から太郎へのメッセージ",
             'created_at' => "2023-10-18 16:20:00",
             'updated_at' => "2023-10-18 16:20:00",
         ]);
-        DB::table('messages')->insert([
+        DB::table('chats')->insert([
             'sender_id' => 1,
             'receiver_id' => 2,
-            'context' => "太郎から花子へのメッセージ",
+            'message' => "太郎から花子へのメッセージ",
             'created_at' => "2023-10-18 16:30:00",
             'updated_at' => "2023-10-18 16:30:00",
         ]);
