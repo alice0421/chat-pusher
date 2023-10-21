@@ -36,7 +36,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/chat/{receiver}', [ChatController::class, 'get'])->name('chat.get');
-Route::post('/chat/{receiver}', [ChatController::class, 'store'])->name('chat.store');
+// chat用のルーティング
+Route::middleware('auth')->group(function () {
+    Route::get('/chat/{receiver}', [ChatController::class, 'get'])->name('chat.get');
+    Route::post('/chat/{receiver}', [ChatController::class, 'store'])->name('chat.store');
+});
 
 require __DIR__.'/auth.php';
