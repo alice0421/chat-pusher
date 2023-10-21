@@ -9,11 +9,14 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
 
 class MessageSent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $user1_id;
+    public $user2_id;
     public $message;
 
     /**
@@ -21,8 +24,15 @@ class MessageSent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct($message)
+    public function __construct($user1_id, $user2_id, $message)
     {
+        if ($user1_id < $user2_id) {
+            $this->user1_id = $user1_id;
+            $this->user2_id = $user2_id;
+        } else {
+            $this->user1_id = $user2_id;
+            $this->user2_id = $user1_id;
+        }
         $this->message = $message;
     }
 
@@ -33,7 +43,11 @@ class MessageSent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('channel-message-sent', $this->message);
-        // return new PrivateChannel('channel-name'); // Private Channel ではユーザの認証が必要
+        // Private Channel
+        return new PrivateChannel(
+            // チャンネル名はuser_idを小さい順に繋げたもの
+            "channel-message-sent_between-{$this->user1_id}-and-{$this->user2_id}",
+            $this->message
+        );
     }
 }

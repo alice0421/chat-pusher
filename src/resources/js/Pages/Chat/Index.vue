@@ -8,8 +8,9 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 
 const props = defineProps({
-    messages: Array,
+    sender: Object,
     receiver: Object,
+    messages: Array,
 });
 
 const messages = ref([]);
@@ -18,11 +19,18 @@ const new_message = ref([]);
 onMounted(() => {
     messages.value = props.messages;
 
-    // pusherの受信設定 (サーバーからWebsocket経由でメッセージを受け取ったときの処理を定義。以降この処理が自動で発火するため1度きりの定義でOK？)
-    window.Echo.channel('channel-message-sent').listen('MessageSent', (res) => {
-        messages.value.push(res.message);
-        console.log("【受信成功】")
-    });
+    if (props.sender.id < props.receiver.id) {
+        // pusherの受信設定 (サーバーからWebsocket経由でメッセージを受け取ったときの処理を定義。以降この処理が自動で発火するため1度きりの定義でOK？)
+        window.Echo.private(`channel-message-sent_between-${props.sender.id}-and-${props.receiver.id}`).listen('MessageSent', (res) => {
+            messages.value.push(res.message);
+            console.log("【受信成功】");
+            });
+    } else {
+        window.Echo.private(`channel-message-sent_between-${props.receiver.id}-and-${props.sender.id}`).listen('MessageSent', (res) => {
+            messages.value.push(res.message);
+            console.log("【受信成功】");
+        });
+    }
 })
 
 function sendMessage()
@@ -31,7 +39,7 @@ function sendMessage()
     if (!(new_message.value.replace(/\s+/g,'').length > 0)) return;
 
     axios.post(route('chat.store', { 'receiver': props.receiver.id }), {
-            'context': new_message.value,
+            'message': new_message.value,
         })
         .then((res) => {
             messages.value.push(res.data);
@@ -58,7 +66,7 @@ function sendMessage()
                     <p>【メッセージ: {{ format(new Date(message.created_at), 'yyyy-MM-dd HH:mm:ss') }}】</p>
                     <p>送信者: {{ message.sender.name }}</p>
                     <p>受信者: {{ message.receiver.name }}</p>
-                    <p>内容: {{ message.context }}</p>
+                    <p>内容: {{ message.message }}</p>
                 </li>
             </ul>
         </div>
