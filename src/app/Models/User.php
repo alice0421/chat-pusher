@@ -46,4 +46,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Message::class);
     }
+
+    public function japanese()
+    {
+        return $this->hasOne(Japanese::class);
+    }
+
+    public function foreigner()
+    {
+        return $this->hasOne(Foreigner::class);
+    }
 }
