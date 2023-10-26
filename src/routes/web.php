@@ -3,6 +3,7 @@
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -27,7 +28,9 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    return Inertia::render('Dashboard', [
+        'authUser' => Auth::user(),
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -36,8 +39,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// chat用のルーティング
-Route::middleware('auth')->group(function () {
+// chat用のルーティング（Gateを使用、403エラー画面が出る）
+// Route::middleware(['auth', 'can:chat,receiver'])->group(function () {
+//     Route::get('/chat/{receiver}', [ChatController::class, 'get'])->name('chat.get');
+//     Route::post('/chat/{receiver}', [ChatController::class, 'store'])->name('chat.store');
+// });
+
+// chat用のルーティング (Middlewareを自作、403エラーでbackする)
+Route::middleware(['auth', 'chat'])->group(function () {
     Route::get('/chat/{receiver}', [ChatController::class, 'get'])->name('chat.get');
     Route::post('/chat/{receiver}', [ChatController::class, 'store'])->name('chat.store');
 });
